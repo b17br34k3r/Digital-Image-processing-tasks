@@ -1,9 +1,11 @@
 # LAB-TASK-12-2023-SE-39: Image Segmentation Techniques
 
 ## Overview
+
 This lab task focuses on implementing and comparing various image segmentation techniques. Students will learn how to partition images into meaningful regions using global thresholding, local/adaptive thresholding, K-Means clustering, and Mean Shift algorithms. These techniques are fundamental for object detection, image analysis, and computer vision applications.
 
 ## Learning Objectives
+
 - Understand image segmentation principles and applications
 - Implement global thresholding using Otsu's method
 - Apply local and adaptive thresholding for varying illumination
@@ -20,18 +22,21 @@ This lab task focuses on implementing and comparing various image segmentation t
 Image segmentation is the process of partitioning an image into multiple regions or objects based on certain criteria.
 
 **Purpose:**
+
 - Separate foreground from background
 - Identify objects of interest
 - Group similar pixels
 - Prepare for higher-level processing
 
 **Types:**
+
 - **Threshold-based:** Binary classification (foreground/background)
 - **Clustering-based:** Multiple groups based on similarity
 - **Region-based:** Connected components with similar properties
 - **Edge-based:** Boundaries between regions
 
 **Challenges:**
+
 - Varying illumination
 - Similar colors/intensities
 - Noise
@@ -39,6 +44,7 @@ Image segmentation is the process of partitioning an image into multiple regions
 - Computational efficiency
 
 **Applications:**
+
 - Medical image analysis
 - Object detection
 - Face recognition
@@ -52,30 +58,35 @@ Image segmentation is the process of partitioning an image into multiple regions
 Convert grayscale image to binary using a single global threshold value.
 
 **Basic Process:**
+
 ```
 Output[x,y] = 1 if Input[x,y] > T
 Output[x,y] = 0 if Input[x,y] ≤ T
 ```
 
 **Simple Thresholding:**
+
 ```python
 T = 127  # Fixed threshold (middle of 0-255 range)
 BW = I > T
 ```
 
 **Advantages:**
+
 - Fast and simple
 - Easy to understand
 - Minimal computation
 - Works well for high-contrast images
 
 **Disadvantages:**
+
 - Manual threshold selection
 - Fails with varying lighting
 - No spatial information
 - Assumes bimodal histogram
 
 **When to Use:**
+
 - High-contrast images
 - Known foreground/background characteristics
 - Real-time processing required
@@ -89,6 +100,7 @@ Automatic method for determining optimal global threshold by maximizing between-
 Find threshold that separates histogram into two classes with maximum variance between them.
 
 **Mathematical Basis:**
+
 ```
 Maximize: σ²_B = w₀w₁(μ₀ - μ₁)²
 
@@ -98,6 +110,7 @@ w₀, w₁ = Class weights
 ```
 
 **Implementation:**
+
 ```python
 from skimage.filters import threshold_otsu
 
@@ -106,6 +119,7 @@ BW_global = I > T
 ```
 
 **How It Works:**
+
 1. Calculate histogram of image
 2. For each possible threshold:
    - Calculate foreground mean
@@ -114,18 +128,21 @@ BW_global = I > T
 3. Select threshold with maximum variance
 
 **Advantages:**
+
 - Automatic (no manual selection)
 - Theoretically optimal for bimodal distributions
 - Works well for most images
 - No parameters to tune
 
 **Disadvantages:**
+
 - Assumes bimodal histogram (two classes)
 - Fails with skewed histograms
 - Can't handle varying illumination
 - Doesn't use spatial information
 
 **When to Use:**
+
 - Unknown threshold value
 - Roughly equal-sized classes
 - Decent contrast between foreground/background
@@ -136,6 +153,7 @@ BW_global = I > T
 Calculate threshold for each pixel based on local neighborhood statistics.
 
 **Process:**
+
 ```
 For each pixel [x,y]:
   T[x,y] = mean(neighborhood) + offset
@@ -143,6 +161,7 @@ For each pixel [x,y]:
 ```
 
 **Implementation:**
+
 ```python
 from skimage.filters import threshold_local
 
@@ -152,6 +171,7 @@ BW_local = I > local_threshold
 ```
 
 **Parameters:**
+
 - **block_size:** Size of neighborhood (must be odd)
   - Small (11-21): Detailed features
   - Medium (31-51): Balanced
@@ -163,18 +183,21 @@ BW_local = I > local_threshold
   - Negative: More strict (less foreground)
 
 **Advantages:**
+
 - Handles varying illumination
 - Adapts to local conditions
 - Better for uneven lighting
 - Preserves local details
 
 **Disadvantages:**
+
 - Slower than global
 - Parameter tuning needed
 - Can create artifacts
 - Sensitivity to noise
 
 **When to Use:**
+
 - Varying illumination across image
 - Uneven lighting conditions
 - Documents with shading
@@ -186,6 +209,7 @@ BW_local = I > local_threshold
 Similar to local thresholding but optimized for specific characteristics.
 
 **Alternative Implementations:**
+
 ```python
 # Using Gaussian-weighted neighborhood
 block_size = 51
@@ -199,6 +223,7 @@ BW_niblack = I > adaptive_niblack
 ```
 
 **Key Difference from Local:**
+
 - Local uses mean
 - Adaptive may use:
   - Gaussian-weighted mean
@@ -206,18 +231,21 @@ BW_niblack = I > adaptive_niblack
   - Other statistics
 
 **Advantages:**
+
 - More sophisticated than local
 - Better results for specific images
 - Handles complex lighting
 - More robust
 
 **Disadvantages:**
+
 - More complex
 - Slower computation
 - More parameters
 - Harder to tune
 
 **When to Use:**
+
 - Complex lighting conditions
 - Document scanning with shadows
 - Medical images
@@ -229,12 +257,14 @@ BW_niblack = I > adaptive_niblack
 Partition pixels into k clusters based on intensity similarity.
 
 **Algorithm:**
+
 1. Initialize k random cluster centers
 2. Assign each pixel to nearest center
 3. Recalculate centers as cluster means
 4. Repeat until convergence
 
 **Implementation:**
+
 ```python
 from sklearn.cluster import KMeans
 
@@ -250,6 +280,7 @@ seg = idx.reshape(img.shape)
 ```
 
 **Parameters:**
+
 - **n_clusters (k):** Number of segments
   - k=2: Foreground/background
   - k=3-4: Basic objects
@@ -264,12 +295,14 @@ seg = idx.reshape(img.shape)
 | 5+ | Fine segmentation | Detailed analysis |
 
 **Advantages:**
+
 - Simple and intuitive
 - Produces k segments
 - Fast convergence
 - Works with color images
 
 **Disadvantages:**
+
 - Must specify k in advance
 - Sensitive to initialization
 - Assumes roughly equal cluster sizes
@@ -277,6 +310,7 @@ seg = idx.reshape(img.shape)
 - Doesn't use spatial information
 
 **When to Use:**
+
 - Known number of objects
 - Roughly equal-sized objects
 - Color-based clustering
@@ -291,6 +325,7 @@ Data-driven clustering that finds modes (peaks) of pixel density distribution.
 Move each point toward region of highest pixel density.
 
 **Algorithm:**
+
 1. For each pixel:
    - Calculate mean of neighboring pixels (within bandwidth)
    - Move pixel toward that mean
@@ -298,6 +333,7 @@ Move each point toward region of highest pixel density.
 3. Group converged pixels into clusters
 
 **Implementation:**
+
 ```python
 from sklearn.cluster import MeanShift, estimate_bandwidth
 
@@ -305,7 +341,7 @@ from sklearn.cluster import MeanShift, estimate_bandwidth
 data = img_color.reshape((-1, 3)) / 255.0
 
 # Estimate bandwidth automatically
-bandwidth = estimate_bandwidth(data, quantile=0.2, 
+bandwidth = estimate_bandwidth(data, quantile=0.2,
                               n_samples=500, random_state=0)
 
 # Perform Mean Shift
@@ -317,6 +353,7 @@ seg_ms = labels.reshape(img_color.shape[:2])
 ```
 
 **Key Parameters:**
+
 - **bandwidth:** Search radius
   - Small (0.1-0.3): Fine segmentation, many clusters
   - Medium (0.3-0.5): Balanced
@@ -328,6 +365,7 @@ seg_ms = labels.reshape(img_color.shape[:2])
   - 0.3+: Coarser
 
 **Advantages:**
+
 - Automatic cluster detection (no need to specify k)
 - Finds natural clusters
 - Non-parametric
@@ -335,6 +373,7 @@ seg_ms = labels.reshape(img_color.shape[:2])
 - Good for arbitrary cluster shapes
 
 **Disadvantages:**
+
 - Slower than K-Means
 - Bandwidth selection critical
 - More memory required
@@ -342,6 +381,7 @@ seg_ms = labels.reshape(img_color.shape[:2])
 - Sensitive to data density variations
 
 **When to Use:**
+
 - Unknown number of clusters
 - Want automatic segmentation
 - Irregular cluster shapes
@@ -352,6 +392,7 @@ seg_ms = labels.reshape(img_color.shape[:2])
 ### Task 1: Thresholding Techniques
 
 #### (a) Global Thresholding (Otsu)
+
 ```python
 from skimage.filters import threshold_otsu
 from skimage.color import rgb2gray
@@ -372,6 +413,7 @@ plt.show()
 ```
 
 #### (b) Local Thresholding
+
 ```python
 from skimage.filters import threshold_local
 
@@ -385,6 +427,7 @@ plt.show()
 ```
 
 #### (c) Adaptive Thresholding
+
 ```python
 from skimage.filters import threshold_local
 
@@ -400,6 +443,7 @@ plt.show()
 ### Task 2: K-Means Segmentation
 
 #### K=2
+
 ```python
 from sklearn.cluster import KMeans
 from skimage.util import img_as_float
@@ -418,6 +462,7 @@ plt.show()
 ```
 
 #### K=3 and K=4
+
 Similar implementation with `n_clusters=3` and `n_clusters=4`
 
 ### Task 3: Mean Shift Segmentation
@@ -429,7 +474,7 @@ from sklearn.cluster import MeanShift, estimate_bandwidth
 data = img_color.reshape((-1, 3)) / 255.0
 
 # Estimate bandwidth
-bandwidth = estimate_bandwidth(data, quantile=0.2, 
+bandwidth = estimate_bandwidth(data, quantile=0.2,
                               n_samples=500, random_state=0)
 
 # Perform Mean Shift
@@ -446,49 +491,54 @@ plt.show()
 ## Key Functions Used
 
 ### scikit-image (skimage) Functions
-| Function | Purpose |
-|----------|---------|
-| `rgb2gray()` | Convert RGB to grayscale |
-| `threshold_otsu()` | Automatic optimal threshold |
-| `threshold_local()` | Local adaptive threshold |
-| `threshold_niblack()` | Niblack adaptive method |
-| `imread()` | Load image |
-| `img_as_float()` | Normalize image to [0,1] |
+
+| Function              | Purpose                     |
+| --------------------- | --------------------------- |
+| `rgb2gray()`          | Convert RGB to grayscale    |
+| `threshold_otsu()`    | Automatic optimal threshold |
+| `threshold_local()`   | Local adaptive threshold    |
+| `threshold_niblack()` | Niblack adaptive method     |
+| `imread()`            | Load image                  |
+| `img_as_float()`      | Normalize image to [0,1]    |
 
 ### scikit-learn (sklearn) Functions
-| Function | Purpose |
-|----------|---------|
-| `KMeans()` | K-Means clustering |
-| `MeanShift()` | Mean Shift clustering |
+
+| Function               | Purpose                    |
+| ---------------------- | -------------------------- |
+| `KMeans()`             | K-Means clustering         |
+| `MeanShift()`          | Mean Shift clustering      |
 | `estimate_bandwidth()` | Auto bandwidth calculation |
 
 ### Parameters Explanation
 
 **KMeans Parameters:**
+
 - `n_clusters`: Number of clusters (k)
 - `random_state`: Seed for reproducibility
 - `n_init`: Number of initializations (10 is default)
 - `max_iter`: Maximum iterations (default 300)
 
 **MeanShift Parameters:**
+
 - `bandwidth`: Search radius
 - `bin_seeding`: Use mode seeding (faster)
 - `n_jobs`: Parallel jobs (-1 = all cores)
 
 **estimate_bandwidth Parameters:**
+
 - `quantile`: Quantile of distances (0.1-0.3)
 - `n_samples`: Random samples for estimation
 - `random_state`: Seed for reproducibility
 
 ## Segmentation Technique Comparison
 
-| Technique | Speed | Parameters | Clusters | Best For |
-|---|---|---|---|---|
-| **Global (Otsu)** | Very Fast | None | 2 | High contrast, binary |
-| **Local** | Fast | block_size, offset | 2 | Varying illumination |
-| **Adaptive** | Fast | block_size, method | 2 | Complex lighting |
-| **K-Means** | Moderate | k | Fixed k | Known object count |
-| **Mean Shift** | Slow | bandwidth | Auto | Unknown clusters |
+| Technique         | Speed     | Parameters         | Clusters | Best For              |
+| ----------------- | --------- | ------------------ | -------- | --------------------- |
+| **Global (Otsu)** | Very Fast | None               | 2        | High contrast, binary |
+| **Local**         | Fast      | block_size, offset | 2        | Varying illumination  |
+| **Adaptive**      | Fast      | block_size, method | 2        | Complex lighting      |
+| **K-Means**       | Moderate  | k                  | Fixed k  | Known object count    |
+| **Mean Shift**    | Slow      | bandwidth          | Auto     | Unknown clusters      |
 
 ## Execution Flow
 
@@ -514,12 +564,14 @@ COMPARISON AND ANALYSIS
 ```
 
 ## Input Requirements
+
 - **Format:** JPG, PNG, or standard image formats
 - **Color:** Can be color or grayscale
 - **Size:** Any size (larger images slower for clustering)
 - **Content:** Any scene with multiple regions/objects
 
 ## Expected Output
+
 1. Global thresholding result (binary)
 2. Local thresholding result (binary)
 3. Adaptive thresholding result (binary)
@@ -531,6 +583,7 @@ COMPARISON AND ANALYSIS
 ## Parameter Tuning Guidelines
 
 ### Thresholding Parameters
+
 ```python
 # Local/Adaptive block_size
 11 or 21    # Small, detailed
@@ -544,6 +597,7 @@ COMPARISON AND ANALYSIS
 ```
 
 ### K-Means Parameters
+
 ```python
 # For choosing k:
 # Start with k=2, gradually increase
@@ -557,6 +611,7 @@ for k in range(2, 6):
 ```
 
 ### Mean Shift Parameters
+
 ```python
 # Bandwidth estimation
 bandwidth = estimate_bandwidth(data, quantile=q, n_samples=n)
@@ -571,19 +626,20 @@ for q in [0.1, 0.2, 0.3, 0.4]:
 
 ## Common Issues and Solutions
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| All black output | Threshold too high | Lower threshold or check image |
-| All white output | Threshold too low | Increase threshold |
-| Over-segmentation | k too high | Reduce k or increase bandwidth |
-| Under-segmentation | k too low | Increase k or decrease bandwidth |
-| Artifacts visible | Block size too small | Increase block_size |
-| Loss of detail | Block size too large | Decrease block_size |
-| Memory error | Image too large | Resize or use smaller sample |
+| Issue              | Cause                | Solution                         |
+| ------------------ | -------------------- | -------------------------------- |
+| All black output   | Threshold too high   | Lower threshold or check image   |
+| All white output   | Threshold too low    | Increase threshold               |
+| Over-segmentation  | k too high           | Reduce k or increase bandwidth   |
+| Under-segmentation | k too low            | Increase k or decrease bandwidth |
+| Artifacts visible  | Block size too small | Increase block_size              |
+| Loss of detail     | Block size too large | Decrease block_size              |
+| Memory error       | Image too large      | Resize or use smaller sample     |
 
 ## Quality Assessment
 
 ### Visual Inspection Checklist
+
 - [ ] Objects clearly separated
 - [ ] Noise minimal
 - [ ] Boundaries well-defined
@@ -594,6 +650,7 @@ for q in [0.1, 0.2, 0.3, 0.4]:
 ### Quantitative Metrics
 
 **Silhouette Score (for clustering):**
+
 ```python
 from sklearn.metrics import silhouette_score
 
@@ -603,6 +660,7 @@ score = silhouette_score(data, labels)
 ```
 
 **Davies-Bouldin Index:**
+
 ```python
 from sklearn.metrics import davies_bouldin_score
 
@@ -613,6 +671,7 @@ score = davies_bouldin_score(data, labels)
 ## Advanced Concepts
 
 ### Combination Strategies
+
 ```python
 # Combine threshold with morphology
 binary = I > T
@@ -622,6 +681,7 @@ result = cv2.morphologyEx(result, cv2.MORPH_CLOSE, kernel)
 ```
 
 ### Multi-scale Segmentation
+
 ```python
 # Segment at multiple scales
 from skimage.transform import pyramid_gaussian
@@ -632,6 +692,7 @@ for scale, image in enumerate(pyramid_gaussian(I, max_layer=3)):
 ```
 
 ### Watershed Algorithm
+
 ```python
 from scipy import ndimage
 from skimage.morphology import watershed
@@ -643,24 +704,28 @@ from skimage.morphology import watershed
 ## Practical Applications
 
 ### Medical Imaging
+
 - Tumor segmentation
 - Organ boundary extraction
 - Tissue classification
 - Lesion detection
 
 ### Document Processing
+
 - Text extraction
 - Table detection
 - Handwriting segmentation
 - Document cleanup
 
 ### Object Detection
+
 - Multiple objects in scene
 - Background/foreground separation
 - Instance segmentation
 - Contour extraction
 
 ### Satellite/Aerial
+
 - Land use classification
 - Water body detection
 - Building extraction
@@ -669,6 +734,7 @@ from skimage.morphology import watershed
 ## Performance Considerations
 
 ### Computation Time (512×512 color image)
+
 - Global Otsu: ~5-10ms
 - Local threshold: ~50-100ms
 - Adaptive threshold: ~50-150ms
@@ -676,6 +742,7 @@ from skimage.morphology import watershed
 - Mean Shift: ~500-2000ms
 
 ### Memory Usage
+
 - Thresholding: ~1MB
 - K-Means: ~10-50MB (depends on k)
 - Mean Shift: ~50-200MB
@@ -715,18 +782,21 @@ from skimage.morphology import watershed
 ## Segmentation Quality Evaluation
 
 ### For Thresholding
+
 - Binary contrast (foreground vs background)
 - Edge sharpness
 - Noise presence
 - Small object preservation
 
 ### For Clustering
+
 - Homogeneity (pixels in cluster similar)
 - Separation (different clusters distinct)
 - Cluster count appropriateness
 - Computational efficiency
 
 ## References
+
 - scikit-image Documentation: https://scikit-image.org/
 - scikit-learn Clustering: https://scikit-learn.org/stable/modules/clustering.html
 - Image Segmentation by Gonzalez & Woods
@@ -735,6 +805,7 @@ from skimage.morphology import watershed
 - Mean Shift: https://en.wikipedia.org/wiki/Mean_shift
 
 ## Author Information
+
 - **Course:** Digital Image Processing
 - **Roll Number:** 2023-SE-39
 - **Lab Task:** 12
